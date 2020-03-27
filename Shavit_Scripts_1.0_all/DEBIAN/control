@@ -1,0 +1,8 @@
+Package: shavit-scripts
+Version: 1.0
+Architecture: all
+Essential: no
+Priority: optional
+Depends: less,parted,rsync
+Maintainer: Ilan Shavit
+Description: Collection Of Usefull Scripts 
