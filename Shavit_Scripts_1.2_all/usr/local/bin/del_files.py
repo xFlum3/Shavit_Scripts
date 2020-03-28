@@ -3,15 +3,15 @@
 """
    delFiles - Delete log files(support several deletion method)
 
-   Version: 2.3 (2017-03-4)
+   Version: 1.0 (2020-03-28)
    Dev: Shavit Ilan (ilan.shavit@gmail.com)
 """
 
 import logging
 import glob
-from ConfigParser import SafeConfigParser
 from datetime import date
 import os
+import json
 
 
 def del_file_timestamp(base_dir, files_template, keep_files, \
@@ -49,7 +49,8 @@ def del_file_timestamp(base_dir, files_template, keep_files, \
             else:
                 try:
                     os.remove(files_list[temp_i])
-                    logging.info(log_message + " - Deleted!")
+                    log_msg = log_message + " - Deleted!"
+                    logging.info(log_msg)
                 except OSError:
                     log_message = "%s/%s/%s - OSError exception raised !!!" %\
                             (base_dir, each_dir, files_list[temp_i])
@@ -87,7 +88,8 @@ def del_file_creation(base_dir, files_template, keep_days, simulation_mode, \
                         print log_message + " - Going to delete..."
                     else:
                         os.remove(each_file)
-                        logging.info(log_message + " - Deleted!")
+                        log_msg = log_message + " - Deleted!"
+                        logging.info(log_msg)
             except OSError:
                 log_message = "%s/%s/%s -  OSError Excepion Raised !!!" %\
                         (base_dir, each_dir, each_file)
@@ -112,28 +114,45 @@ def del_file_creation(base_dir, files_template, keep_days, simulation_mode, \
 
 def main():
     """
-        Explain the function of the main program
+        read del_file.ini and call func to delete the files
+        - SIMULATION_MODE: Y (Simulation mode) \ N (Delete the files)
+        - RECURSIVE MODE: Y (Scan directory RECURSIVELY) \ N (Dont scan RECURSIVELY)
+        - METHOD: T (depends on timestamp signature in the file name) \ C (depends on file creation time)
+        - BASE_DIR = C:\PATH\TO\FILES (Windows) \ /PATH/TO/FILES (Linux)
+        - FILES_TEMPLATE = file_*.zip (look for files starting with 'file', ending with 'zip')
+        - KEEP = 5 How many files to keep (Last 5 FILES or 5 DAYS)
     """
-    ini_file = "del_files.ini"
-    log_file = "del_files.log"
+    if os.name == 'posix':
+        ini_file = "/etc/del_files.ini"
+    elif os.name == 'nt':
+        home_dir = os.environ['HOME']
+        ini_file = home_dir + "/del_files.ini"
+    else:
+        print "Error: Unsupported platform"
+        exit()
+    try:
+        with open(ini_file, "r") as ini_file:
+            json_content = json.load(ini_file)
+    except:
+        print "Missing or illegal config file in /etc/del_files.ini"
+        exit()
 
-    logging.basicConfig(filename=log_file, level=logging.INFO,\
-        format='%(asctime)s - %(levelname)s - %(message)s')
-    parser = SafeConfigParser()
-    parser.read(ini_file)
-    simulation_mode = parser.get('CONFIG', 'SIMULATION_MODE')
-    base_dir = parser.get('CONFIG', 'BASE_DIR')
-    recursive_mode = parser.get('CONFIG', 'RECURSIVE_MODE')
-    method = parser.get('CONFIG', 'METHOD')
-    keep = int(parser.get('CONFIG', 'KEEP'))
-    files_template = parser.get('CONFIG', 'FILES_TEMPLATE')
+    for each_config in json_content:
+        log_file = each_config["LOG_FILE"]
+        logging.basicConfig(filename=log_file, level=logging.INFO,\
+            format='%(asctime)s - %(levelname)s - %(message)s')
+        simulation_mode = each_config['SIMULATION_MODE']
+        base_dir = each_config['BASE_DIR']
+        recursive_mode = each_config['RECURSIVE_MODE']
+        method = each_config['METHOD']
+        keep = int(each_config['KEEP'])
+        files_template = each_config['FILES_TEMPLATE']
 
-    if method == "T":
-        del_file_timestamp(base_dir, files_template, keep, simulation_mode, recursive_mode)
-    elif method == "C":
-        del_file_creation(base_dir, files_template, keep, simulation_mode, recursive_mode)
+        if method == "T":
+            del_file_timestamp(base_dir, files_template, keep, simulation_mode, recursive_mode)
+        elif method == "C":
+            del_file_creation(base_dir, files_template, keep, simulation_mode, recursive_mode)
 
 
 if __name__ == "__main__":
     main()
-
