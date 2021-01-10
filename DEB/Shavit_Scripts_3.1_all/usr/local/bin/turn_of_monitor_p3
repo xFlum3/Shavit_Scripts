@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
+# Dependency: python3-xlib
 
 import time
 import subprocess
@@ -14,10 +15,10 @@ root.grab_keyboard(True,
         X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
 
 subprocess.call('xset dpms force off'.split())
-p = subprocess.Popen('gnome-screensaver-command -i'.split())
+#p = subprocess.Popen('gnome-screensaver-command -i'.split())
 time.sleep(1)
 
 while True:
-    print display.next_event()
-    p.terminate()
+    print(display.next_event())
+    #p.terminate()
     break

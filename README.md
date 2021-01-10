@@ -8,6 +8,7 @@
 - manage_ssh - Manage ssh
 - pretty_ping - Pretty ping
 - ts - Timestamp files
-- turn_of_monitor - Turn Off monitor
+- turn_of_monitor_p2 - Turn Off monitor - python2
+- turn_of_monitor_p3 - Turn Off monitor - python3
 - up - Update Debian system
 

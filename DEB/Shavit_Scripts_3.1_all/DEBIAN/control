@@ -1,8 +1,8 @@
 Package: shavit-scripts
-Version: 3.0
+Version: 3.1
 Architecture: all
 Essential: no
 Priority: optional
 Depends: rsync
 Maintainer: Ilan Shavit
-Description: Collection Of Usefull Linux Scripts 
+Description: Collection Of Usefull Linux Scripts
